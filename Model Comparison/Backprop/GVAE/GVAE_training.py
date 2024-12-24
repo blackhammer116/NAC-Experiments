@@ -61,7 +61,7 @@ latent_dim = 64
 weight_decay = 1e-4 #change this data to the desired value
 model = VAE(latent_dim=latent_dim)
 model.to(device)
-optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=weight_decay)
+optimizer = optim.SGD(model.parameters(), lr=1e-3, weight_decay=weight_decay)
 
 train_dataset = NumpyDataset(dataX, dataY)
 train_loader = DataLoader(dataset=train_dataset, batch_size=200, shuffle=True)
