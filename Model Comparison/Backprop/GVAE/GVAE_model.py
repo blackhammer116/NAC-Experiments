@@ -50,20 +50,20 @@ class VAE(nn.Module):
         return torch.sigmoid(h7)
 
     def forward(self, x):
-        mu, logvar = self.encode(x.view(-1, 28 * 28))
+        mu, logvar = self.encode(x.view(-1, 1))
         z = self.reparameterize(mu, logvar)
         return self.decode(z), mu, logvar
 
 
-latent_dim = 20
-model = VAE(latent_dim=latent_dim)
-print("Model Architecture: \n", model)
+# latent_dim = 20
+# model = VAE(latent_dim=latent_dim)
+# print("Model Architecture: \n", model)
 
-print("\nLayer details:")
-for name, layer in model.named_children():
-    print(f"Layer name: {name}, Layer type: {layer}")
-    if isinstance(layer, nn.Linear):
-        print(f"Weight: {layer.weight.shape}")
-        # print(f"Weight-shape: {layer.weight.shape}")
-        # print(f"Bias: {layer.bias}")
-        # print(f"Bias-shape: {layer.bias.shape}")
+# print("\nLayer details:")
+# for name, layer in model.named_children():
+#     print(f"Layer name: {name}, Layer type: {layer}")
+#     if isinstance(layer, nn.Linear):
+#         print(f"Weight: {layer.weight.shape}")
+#         # print(f"Weight-shape: {layer.weight.shape}")
+#         # print(f"Bias: {layer.bias}")
+#         # print(f"Bias-shape: {layer.bias.shape}")
