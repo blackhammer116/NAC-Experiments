@@ -57,7 +57,7 @@ print("Train-set: X: {} | Y: {}".format(dataX, dataY))
 print("  Dev-set: X: {} | Y: {}".format(devX, devY))
 print("  Test-set: X: {} | Y: {}".format(testX, testY))
 
-latent_dim = 64
+latent_dim = 20
 weight_decay = 1e-4 #change this data to the desired value
 model = VAE(latent_dim=latent_dim)
 model.to(device)
@@ -125,12 +125,14 @@ def train(model, loader, optimizer, epoch, gradinet_rescaling_factor=1.0, raduis
         torch.save(model.state_dict(), "trained_model.pth")
 
     # Fitting it into Gaussian Mixture Model with 75 components
+    print("Fitting GMM...")
     gmm = GaussianMixture(n_components=75)
     gmm.fit(latent_rep)
+    gmm_score = gmm.score(latent_rep)
 
     avg_bce = total_bce / len(loader)
     accuracy = total_correct / (total_samples * data.size(1)) * 100
-    print(f'Epoch [{epoch}], BCE: {avg_bce:.4f}, Accuracy: {accuracy}%')
+    print(f'Epoch [{epoch}], BCE: {avg_bce:.4f}, Accuracy: {accuracy:.4f}%, GMM Score: {gmm_score:.4f}')
     return avg_bce, accuracy
 
 
