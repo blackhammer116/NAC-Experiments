@@ -61,7 +61,7 @@ latent_dim = 20
 weight_decay = 1e-4 #change this data to the desired value
 model = VAE(latent_dim=latent_dim)
 model.to(device)
-optimizer = optim.SGD(model.parameters(), lr=1e-3, weight_decay=weight_decay)
+optimizer = optim.SGD(model.parameters(), momentum=0.9, lr=2e-2, weight_decay=weight_decay)
 
 train_dataset = NumpyDataset(dataX, dataY)
 train_loader = DataLoader(dataset=train_dataset, batch_size=200, shuffle=True)
@@ -156,11 +156,6 @@ def evaluate(model, loader):
             # Calculating BCE
             bce_loss = F.binary_cross_entropy(reconstructed, data)
             total_bce += bce_loss.item()
-
-            # Calculating NLL
-            log_probs = torch.log(reconstructed + 1e-9)  # Add small value for numerical stability
-            nll_loss = F.nll_loss(log_probs, data.argmax(dim=-1))
-            total_nll += nll_loss.item()
 
             # Calculating accuracy
             diff = torch.abs(reconstructed - data) 
