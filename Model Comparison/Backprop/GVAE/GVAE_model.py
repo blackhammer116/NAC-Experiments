@@ -8,16 +8,16 @@ class VAE(nn.Module):
         super(VAE, self).__init__()
         
         # Encoder
-        self.fc1 = nn.Linear(28*28, 512) # in_dim prev value = 28*28
+        self.fc1 = nn.Linear(28*28, 512)
         self.fc2 = nn.Linear(512, 256)
         self.fc3 = nn.Linear(256, 128)
-        self.fc4 = nn.Linear(128, latent_dim)
-        self.fc5 = nn.Linear(128, latent_dim)
+        self.fc4 = nn.Linear(128, latent_dim) # for mean
+        self.fc5 = nn.Linear(128, latent_dim) # for log-variance
         # Decoder
         self.fc6 = nn.Linear(latent_dim, 64)
         self.fc7 = nn.Linear(64, 128)
         self.fc8 = nn.Linear(128, 512)
-        self.fc9 = nn.Linear(512, 28*28) # out_dim prev value = 28*28
+        self.fc9 = nn.Linear(512, 28*28)
 
         self._initialize_weights()
     

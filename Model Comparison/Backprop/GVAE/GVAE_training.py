@@ -4,7 +4,7 @@ from torch.utils.data import DataLoader, Dataset
 import torch.nn.functional as F
 import numpy as np
 from tqdm import tqdm
-# from GVAE_model import VAE
+from GVAE_model import VAE
 import sys, getopt as gopt, time
 from ngclearn.utils.metric_utils import measure_KLD
 import matplotlib.pyplot as plt
@@ -35,8 +35,9 @@ options, remainder = gopt.getopt(sys.argv[1:], '',
 # testX = "../../../data/mnist/testX.npy"
 # testY = "../../../data/mnist/testY.npy"
 
-device = "cuda" if torch.cuda.is_available() else "cuda"
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
+# add the path to the data
 dataX = "/content/mnist/trainX.npy"
 dataY = "/content/mnist/trainY.npy"
 devX  = "/content/mnist/validX.npy"
@@ -68,9 +69,10 @@ print("> Test-set: X: {} | Y: {}".format(testX, testY))
 
 latent_dim = 20
 weight_decay = 1e-4 # 1e-4 #change this data to the desired value
+lr = 2e-2
 model = VAE(latent_dim=latent_dim)
 model.to(device)
-optimizer = optim.SGD(model.parameters(), momentum=0.9, lr=2e-2, weight_decay=weight_decay)
+optimizer = optim.SGD(model.parameters(), momentum=0.9, lr=lr, weight_decay=weight_decay)
 
 train_dataset = NumpyDataset(dataX, dataY)
 train_loader = DataLoader(dataset=train_dataset, batch_size=200, shuffle=True)
@@ -98,17 +100,6 @@ def train_reconstruction(model, loader, optimizer, epoch, device, gradinet_resca
         # training on the reconstruction
         reconstructed, mu, logvar = model(data)
         reconstructed = reconstructed.view(data.size(0), -1)  # Flatten the output to (batch_size, input_dim)
-
-        # Calculating accuracy
-        diff = torch.abs(reconstructed - data)
-        correct = torch.sum(diff < threshold, dim=1)
-        total_correct += correct.sum().item()
-        total_samples += data.size(0)
-
-        # Loss for reconstruction
-        bce_loss = F.binary_cross_entropy(reconstructed, data)
-        log_probs = torch.log(reconstructed + 1e-9)  # Add small value for numerical stability
-        bce_loss.backward()
 
         # Calculating accuracy
         diff = torch.abs(reconstructed - data)
@@ -222,7 +213,7 @@ def train_pattern_completion(model, loader, optimizer, epoch, device, gradinet_r
 
     avg_m_mse = total_m_mse / len(loader)
     accuracy = total_correct / (total_samples * data.size(1)) * 100
-    err_prc = 1 - (accuracy / 100)
+    err_prc = 100 - accuracy
     print(f'Epoch [{epoch}], M_MSE: {avg_m_mse:.4f}, Accuracy: {accuracy:.4f}%, GMM score: {gmm_score:.4f}, MCS_log_likelihood: {mcs_sample:.4f}')
     # print(f'Epoch [{epoch}], BCE: {avg_bce:.4f}, Accuracy: {accuracy:.4f}%')
     return avg_m_mse, accuracy, total_m_mse, err_prc
